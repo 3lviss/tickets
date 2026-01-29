@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { index } from '@/routes/tickets';
+import { index, create } from '@/routes/tickets';
+import { useTicketEnums } from '@/composables/useTicketEnums';
 import Datatable from '@/components/Datatable.vue';
 import Pagination from '@/components/Pagination.vue';
+import Button from '@/components/Button.vue';
+
+const { statusColors, priorityColors } = useTicketEnums();
 
 interface Ticket {
     id: number;
@@ -86,8 +90,8 @@ const buildPaginationUrl = (page: number) => {
 
                 </div>
 
-                <Link href="#">
-                    <button>
+                <Link :href="create().url">
+                    <Button variant="primary">
                         Create Ticket
                     </button>
                 </Link>
@@ -106,6 +110,18 @@ const buildPaginationUrl = (page: number) => {
                     <Link href="#" class="text-blue-600 hover:text-blue-800 hover:underline">
                         {{ row.title }}
                     </Link>
+                </template>
+
+                <template #cell-status="{ value }">
+                    <span :class="statusColors[value as string]" class="rounded-full px-3 py-1 text-xs font-semibold">
+                        {{ value }}
+                    </span>
+                </template>
+
+                <template #cell-priority="{ value }">
+                    <span :class="priorityColors[value as string]" class="rounded-full px-3 py-1 text-xs font-semibold">
+                        {{ value }}
+                    </span>
                 </template>
 
                 <template #actions="{ row }">

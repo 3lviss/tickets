@@ -8,4 +8,8 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::get('/tickets', [TicketsController::class, 'index'])->name('tickets.index');
+Route::controller(TicketsController::class)->prefix('tickets')->group(function () {
+    Route::get('/', 'index')->name('tickets.index');
+    Route::get('/create', 'create')->name('tickets.create');
+    Route::post('/', 'store')->name('tickets.store');
+});
