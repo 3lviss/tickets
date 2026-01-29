@@ -34,7 +34,7 @@ defineProps<Props>();
                 preserve-scroll
                 v-if="pagination.current_page < pagination.last_page"
                 :href="buildUrl(pagination.current_page + 1)"
-                class="px-4 py-2 text-sm font-medium text-white bg-teal-500 border border-transparent rounded-md hover:bg-teal-600"
+                class="px-4 py-2 text-sm font-medium text-gray-900 bg-orange-200 border border-transparent rounded-md hover:bg-orange-300"
             >
                 Next
             </Link>

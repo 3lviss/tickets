@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FilterTicketsRequest;
 use App\Http\Requests\TicketRequest;
 use App\Models\Ticket;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TicketsController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(FilterTicketsRequest $request): Response
     {
-        $tickets = Ticket::latest('updated_at')
-                 ->paginate(10);
+        $tickets = Ticket::search($request->input('search'))
+                ->byStatus($request->input('status'))
+                ->byPriority($request->input('priority'))
+                ->latest('updated_at')
+                ->paginate(10);
 
         return Inertia::render('Tickets/Index', [
             'tickets' => $tickets,

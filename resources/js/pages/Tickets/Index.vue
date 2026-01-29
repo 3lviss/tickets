@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { index, create, show, destroy } from '@/routes/tickets';
 import { useTicketEnums } from '@/composables/useTicketEnums';
@@ -9,6 +9,7 @@ import Pagination from '@/components/Pagination.vue';
 import Button from '@/components/Button.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import Filters from '@/components/Filters.vue';
 
 const page = usePage();
 const { statusColors, priorityColors } = useTicketEnums();
@@ -35,9 +36,15 @@ interface PaginatedTickets {
 
 interface Props {
     tickets: PaginatedTickets;
+    search?: string;
+    status?: string;
+    priority?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    search: '',
+    status: '',
+    priority: '',
 });
 
 const flash = computed(() => page.props.flash as any);
@@ -94,11 +101,56 @@ const cancelDelete = () => {
 };
 
 const buildPaginationUrl = (page: number) => {
-  return index({
-    query: {
-      page,
-    },
-  }).url;
+    return index({
+        query: {
+            page,
+            ...(props.search && { search: props.search }),
+            ...(props.status && { status: props.status }),
+            ...(props.priority && { priority: props.priority }),
+        },
+    }).url;
+};
+
+const buildFilterUrl = (search: string = props.search, status: string = props.status, priority: string = props.priority) => {
+    return index({
+        query: {
+            ...(search && { search }),
+            ...(status && { status }),
+            ...(priority && { priority }),
+        },
+    }).url;
+};
+
+const handleSearch = (searchValue: string) => {
+    const url = buildFilterUrl(searchValue, props.status, props.priority);
+    router.get(url, {}, {
+        onSuccess: () => {
+            nextTick(() => {
+                const searchInput = document.querySelector('input[placeholder="Search by title or description..."]') as HTMLInputElement;
+                if (searchInput) {
+                searchInput.focus();
+                }
+            });
+        },
+    });
+};
+
+const handleFilter = (filters: any) => {
+    const url = buildFilterUrl(filters.search, filters.status, filters.priority);
+    router.get(url, {}, {
+        onSuccess: () => {
+            nextTick(() => {
+                const statusSelect = document.querySelector('select') as HTMLSelectElement;
+                if (statusSelect) {
+                statusSelect.focus();
+                }
+            });
+        },
+    });
+};
+
+const handleResetFilter = () => {
+  router.get(index().url);
 };
 </script>
 
@@ -129,6 +181,16 @@ const buildPaginationUrl = (page: number) => {
                     </button>
                 </Link>
             </div>
+
+            <!-- Filter Component -->
+            <Filters
+                :initial-search="props.search"
+                :initial-status="props.status"
+                :initial-priority="props.priority"
+                @search="handleSearch"
+                @filter="handleFilter"
+                @reset="handleResetFilter"
+            />
 
             <!-- Datatable Component -->
             <Datatable

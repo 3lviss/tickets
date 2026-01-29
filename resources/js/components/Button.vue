@@ -17,7 +17,7 @@ withDefaults(
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary: 'bg-teal-500 text-white hover:bg-teal-600',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
+    secondary: 'bg-orange-200 text-gray-900 hover:bg-orange-300',
     danger: 'text-red-600 hover:text-red-900',
     ghost: 'text-blue-600 hover:text-blue-900',
 };

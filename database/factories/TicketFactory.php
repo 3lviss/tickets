@@ -19,7 +19,7 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(1, false),
+            'title' => fake()->words(4, true),
             'description' => fake()->optional(0.8)->paragraph(),
             'status' => fake()->randomElement(TicketStatus::cases()),
             'priority' => fake()->randomElement(TicketPriority::cases()),
