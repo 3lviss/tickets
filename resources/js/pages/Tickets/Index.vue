@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { index, create } from '@/routes/tickets';
+import { index, create, show, destroy } from '@/routes/tickets';
 import { useTicketEnums } from '@/composables/useTicketEnums';
+import { useDatetimeFormat } from '@/composables/useDatetimeFormat';
 import Datatable from '@/components/Datatable.vue';
 import Pagination from '@/components/Pagination.vue';
 import Button from '@/components/Button.vue';
 
 const { statusColors, priorityColors } = useTicketEnums();
+const { formatDate } = useDatetimeFormat();
 
 interface Ticket {
     id: number;
@@ -58,11 +60,11 @@ const columns = [
 ];
 
 const handleEdit = (ticketId: number) => {
-    // Edit
+    router.visit(show(ticketId).url);
 };
 
 const handleDelete = (ticketId: number) => {
-    // Delete
+    router.delete(destroy(ticketId).url);
 };
 
 const buildPaginationUrl = (page: number) => {
@@ -107,7 +109,7 @@ const buildPaginationUrl = (page: number) => {
                 </template>
 
                 <template #cell-title="{ row }">
-                    <Link href="#" class="text-blue-600 hover:text-blue-800 hover:underline">
+                    <Link :href="show((row as unknown as Ticket).id).url" class="text-blue-600 hover:text-blue-800 hover:underline">
                         {{ row.title }}
                     </Link>
                 </template>
@@ -124,9 +126,14 @@ const buildPaginationUrl = (page: number) => {
                     </span>
                 </template>
 
+                <template #cell-created_at="{ value }">
+                    {{ formatDate(value as string) }}
+                </template>
+
                 <template #actions="{ row }">
                     <div class="flex gap-2">
-                        <button
+                        <Button
+                            variant="ghost"
                             @click="handleEdit((row as unknown as Ticket).id)"
                             class="cursor-pointer p-1"
                         >
@@ -135,9 +142,10 @@ const buildPaginationUrl = (page: number) => {
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                 />
                             </svg>
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
+                            variant="danger"
                             @click="handleDelete((row as unknown as Ticket).id)"
                             class="cursor-pointer p-1"
                         >
@@ -146,7 +154,7 @@ const buildPaginationUrl = (page: number) => {
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                 />
                             </svg>
-                        </button>
+                        </Button>
                     </div>
                 </template>
             </Datatable>

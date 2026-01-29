@@ -7,7 +7,7 @@ use App\Enums\TicketStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class StoreTicketRequest extends FormRequest
+class TicketRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
