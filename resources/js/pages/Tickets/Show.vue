@@ -5,6 +5,8 @@ import { ref, computed } from 'vue';
 import { useTicketEnums } from '@/composables/useTicketEnums';
 import { useDatetimeFormat } from '@/composables/useDatetimeFormat';
 import Button from '@/components/Button.vue';
+import FlashMessage from '@/components/FlashMessage.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import Edit from './Edit.vue';
 
 interface Ticket {
@@ -25,7 +27,10 @@ const props = defineProps<{
     ticket: Ticket;
 }>();
 
+const flash = computed(() => page.props.flash as any);
+
 const isEditing = ref(false);
+const showDeleteConfirm = ref(false);
 
 const enterEditMode = () => {
     isEditing.value = true;
@@ -35,13 +40,26 @@ const closeEditMode = () => {
     isEditing.value = false;
 };
 
-const deleteTicket = () => {
-    router.delete(destroy(props.ticket.id).url);
+const confirmDelete = () => {
+  showDeleteConfirm.value = true;
+};
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
+};
+
+const submitDelete = () => {
+  router.delete(destroy(props.ticket.id).url);
 };
 </script>
 
 <template>
     <Head :title="`Ticket #${ticket.id}`" />
+
+    <FlashMessage
+        :success="flash.success"
+        :error="flash.error"
+    />
 
     <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
@@ -138,11 +156,19 @@ const deleteTicket = () => {
                     Edit Ticket
                 </Button>
 
-                <Button variant="danger" size="md" @click="deleteTicket">
+                <Button variant="danger" size="md" @click="confirmDelete">
                     Delete Ticket
                 </Button>
             </div>
         </div>
-        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            v-if="showDeleteConfirm"
+            message="Are you sure you want to delete this ticket? This action cannot be undone."
+            @confirm="submitDelete"
+            @cancel="cancelDelete"
+        />
+    </div>
   </div>
 </template>

@@ -131,11 +131,10 @@ const cancelEdit = () => {
     <Button
         variant="primary"
         size="md"
-        :disabled="form.processing"
+        :disabled="!form.isDirty || form.processing"
         @click="submitEdit"
         class="inline-flex items-center gap-2"
     >
-        <span v-if="form.processing" class="inline-block animate-spin">⏳</span>
         <span>{{ form.processing ? 'Saving...' : 'Save Changes' }}</span>
     </Button>
 

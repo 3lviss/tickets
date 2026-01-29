@@ -117,7 +117,6 @@ const submitForm = () => {
                         :disabled="form.processing"
                         class="inline-flex items-center gap-2"
                     >
-                        <span v-if="form.processing" class="inline-block animate-spin">⏳</span>
                         <span>{{ form.processing ? 'Creating...' : 'Create Ticket' }}</span>
                     </Button>
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { index, create, show, destroy } from '@/routes/tickets';
 import { useTicketEnums } from '@/composables/useTicketEnums';
@@ -6,7 +7,10 @@ import { useDatetimeFormat } from '@/composables/useDatetimeFormat';
 import Datatable from '@/components/Datatable.vue';
 import Pagination from '@/components/Pagination.vue';
 import Button from '@/components/Button.vue';
+import FlashMessage from '@/components/FlashMessage.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 
+const page = usePage();
 const { statusColors, priorityColors } = useTicketEnums();
 const { formatDate } = useDatetimeFormat();
 
@@ -36,6 +40,11 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 });
 
+const flash = computed(() => page.props.flash as any);
+
+const showDeleteConfirm = ref(false);
+const ticketToDelete = ref<number | null>(null);
+
 const columns = [
     {
         key: 'id',
@@ -64,7 +73,24 @@ const handleEdit = (ticketId: number) => {
 };
 
 const handleDelete = (ticketId: number) => {
-    router.delete(destroy(ticketId).url);
+    ticketToDelete.value = ticketId;
+    showDeleteConfirm.value = true;
+};
+
+const confirmDelete = () => {
+    if (ticketToDelete.value) {
+        router.delete(destroy(ticketToDelete.value).url, {
+            onSuccess: () => {
+                showDeleteConfirm.value = false;
+                ticketToDelete.value = null;
+            },
+        });
+    }
+};
+
+const cancelDelete = () => {
+    showDeleteConfirm.value = false;
+    ticketToDelete.value = null;
 };
 
 const buildPaginationUrl = (page: number) => {
@@ -78,6 +104,11 @@ const buildPaginationUrl = (page: number) => {
 
 <template>
     <Head title="Tickets" />
+
+    <FlashMessage
+        :success="flash.success"
+        :error="flash.error"
+    />
 
     <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
@@ -163,6 +194,14 @@ const buildPaginationUrl = (page: number) => {
             <Pagination
                 :pagination="{ current_page: tickets.current_page, last_page: tickets.last_page }"
                 :build-url="buildPaginationUrl"
+            />
+
+            <!-- Delete Confirmation Modal -->
+            <ConfirmationModal
+                v-if="showDeleteConfirm"
+                message="Are you sure you want to delete this ticket? This action cannot be undone."
+                @confirm="confirmDelete"
+                @cancel="cancelDelete"
             />
         </div>
     </div>
