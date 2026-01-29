@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/var/www/html/database
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=sqlite
+
+volumes:
+  sqlite_data:
